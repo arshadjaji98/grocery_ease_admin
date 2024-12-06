@@ -1,190 +1,294 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:grocery_app_admin/admin_login.dart';
 import 'package:grocery_app_admin/home_admin.dart';
 import 'package:grocery_app_admin/responsive/web_responsive.dart';
+import 'package:grocery_app_admin/widgets/text_style.dart';
 import 'package:grocery_app_admin/widgets/utils.dart';
 
-class AdminRegister extends StatefulWidget {
-  const AdminRegister({super.key});
+class AdminSignUp extends StatefulWidget {
+  final void Function()? onTap;
+  const AdminSignUp({super.key, this.onTap});
 
   @override
-  State<AdminRegister> createState() => _AdminRegisterState();
+  State<AdminSignUp> createState() => _AdminSignUpState();
 }
 
-class _AdminRegisterState extends State<AdminRegister> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class _AdminSignUpState extends State<AdminSignUp> {
+  bool _isLoading = false;
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController userPasswordController = TextEditingController();
-  bool isRegistering = false;
+  TextEditingController addressController = TextEditingController();
+
+  final _formkey = GlobalKey<FormState>();
+
+  // Default role is "admin"
+  final String selectType = "admin";
+
+  registration() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      )
+          .then((value) {
+        Map<String, dynamic> addUserInfo = {
+          "name": nameController.text.trim(),
+          "email": value.user!.email.toString(),
+          "wallet": "0",
+          "phone": phoneController.text,
+          "address": addressController.text,
+          "id": value.user!.uid,
+          "favourite": [],
+          "profile_image": "",
+          "user_role": selectType, // Always "admin"
+          "date": DateTime.now(),
+          "verify": false, // Admin accounts require verification
+        };
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(value.user!.uid)
+            .set(addUserInfo);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeAdmin()));
+        Utils.toastMessage("Registered Successfully");
+      }).onError((e, s) {
+        Utils.toastMessage(e.toString());
+      });
+    } on FirebaseAuthException catch (e) {
+      Utils.toastMessage(e.toString());
+    } catch (e) {
+      Utils.toastMessage(e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false; // End loading
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFededeb),
-      body: Stack(
-        children: [
-          Container(
-            margin:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height / 2),
-            padding: const EdgeInsets.only(top: 45.0, left: 20.0, right: 20.0),
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color.fromARGB(255, 53, 51, 51), Colors.black],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(
-                top:
-                    Radius.elliptical(MediaQuery.of(context).size.width, 110.0),
+      body: Container(
+        child: Stack(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2,
+              decoration: const BoxDecoration(
+                color: Color(0XFF8a4af3),
               ),
             ),
-          ),
-          WebResponsive(
-            child: Container(
-              margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 60.0),
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Let's start with\nAdmin!",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 25.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 30.0),
-                      Material(
-                        elevation: 3.0,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height / 1.8,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+            Container(
+              margin:
+                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
+              height: MediaQuery.of(context).size.height / 2,
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(40),
+                  topRight: Radius.circular(40),
+                ),
+              ),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 50),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: WebResponsive(
+                        child: Center(
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const SizedBox(height: 30.0),
-                              _buildTextField("Email", emailController),
-                              const SizedBox(height: 20.0),
-                              _buildTextField("Shop Name", usernameController),
-                              const SizedBox(height: 20.0),
-                              _buildTextField(
-                                  "Password", userPasswordController,
-                                  isPassword: true),
-                              const SizedBox(height: 40.0),
-                              GestureDetector(
-                                onTap: () {
-                                  registerAdmin();
-                                },
+                              Material(
+                                elevation: 5.0,
+                                borderRadius: BorderRadius.circular(20),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12.0),
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 20.0),
+                                  padding: const EdgeInsets.only(
+                                      left: 20.0, right: 20.0),
                                   width: MediaQuery.of(context).size.width,
                                   decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: const Center(
-                                    child: Text(
-                                      "Register",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  child: Form(
+                                    key: _formkey,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(height: 20.0),
+                                        Text(
+                                          "Sign up",
+                                          style:
+                                              AppWidgets.headerTextFieldStyle(),
+                                        ),
+                                        const SizedBox(height: 30.0),
+                                        TextFormField(
+                                          controller: nameController,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please Enter Name';
+                                            }
+                                            return null;
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: 'Name',
+                                            hintStyle: AppWidgets
+                                                .semiBoldTextFieldStyle(),
+                                            prefixIcon: const Icon(
+                                                Icons.person_outlined),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 30.0),
+                                        TextFormField(
+                                          controller: emailController,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please Enter E-mail';
+                                            }
+                                            return null;
+                                          },
+                                          decoration: InputDecoration(
+                                              hintText: 'Email',
+                                              hintStyle: AppWidgets
+                                                  .semiBoldTextFieldStyle(),
+                                              prefixIcon: const Icon(
+                                                  Icons.email_outlined)),
+                                        ),
+                                        const SizedBox(height: 30.0),
+                                        TextFormField(
+                                          controller: passwordController,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please Enter Password';
+                                            }
+                                            return null;
+                                          },
+                                          obscureText: true,
+                                          decoration: InputDecoration(
+                                              hintText: 'Password',
+                                              hintStyle: AppWidgets
+                                                  .semiBoldTextFieldStyle(),
+                                              prefixIcon: const Icon(
+                                                  Icons.password_outlined)),
+                                        ),
+                                        const SizedBox(height: 20.0),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            if (_formkey.currentState!
+                                                .validate()) {
+                                              setState(() {});
+                                              await registration();
+                                            }
+                                          },
+                                          child: Material(
+                                            elevation: 5.0,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 8.0),
+                                              width: 200,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0XFF8a4af3),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: _isLoading
+                                                  ? const Center(
+                                                      child: SpinKitWave(
+                                                          size: 20,
+                                                          color: Colors.white))
+                                                  : const Center(
+                                                      child: Text(
+                                                        "SIGN IN",
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 18.0,
+                                                          fontFamily:
+                                                              'Poppins1',
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10.0),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              "Already have an account? ",
+                                              style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 14,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const AdminLogIn()));
+                                                },
+                                                child: const Text("Login",
+                                                    style: TextStyle(
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 18,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline,
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10.0),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => AdminLogin()));
-                                },
-                                child: Text("Already have an account? Login"),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(String hint, TextEditingController controller,
-      {bool isPassword = false}) {
-    return Container(
-      padding: const EdgeInsets.only(left: 20.0, top: 5.0, bottom: 5.0),
-      margin: const EdgeInsets.symmetric(horizontal: 20.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color.fromARGB(255, 160, 160, 147)),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword,
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please enter $hint';
-          }
-          return null;
-        },
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Color.fromARGB(255, 160, 160, 147)),
+          ],
         ),
       ),
     );
-  }
-
-  Future<void> registerAdmin() async {
-    final email = emailController.text.trim();
-    final username = usernameController.text.trim();
-    final password = userPasswordController.text.trim();
-
-    try {
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      await FirebaseFirestore.instance
-          .collection("Admin")
-          .doc(userCredential.user?.uid)
-          .set({
-        'email': email,
-        'id': username,
-      });
-
-      Utils.toastMessage("Admin Registered successfully!");
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeAdmin()),
-      );
-    } catch (error) {
-      Utils.toastMessage("Registration failed: $error");
-    }
   }
 }

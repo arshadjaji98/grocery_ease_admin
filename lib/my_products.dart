@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grocery_app_admin/services/database_services.dart';
 
 class MyProducts extends StatefulWidget {
   const MyProducts({super.key});
@@ -33,6 +34,8 @@ class _MyProductsState extends State<MyProducts> {
             DropdownButton<String>(
               hint: const Text("Select Category"),
               value: selectedCategory,
+              isExpanded: true,
+              padding: const EdgeInsets.only(left: 10),
               onChanged: (value) {
                 setState(() {
                   selectedCategory = value;
@@ -47,51 +50,52 @@ class _MyProductsState extends State<MyProducts> {
             ),
             const SizedBox(height: 20.0),
             Expanded(
-              child: selectedCategory == null
-                  ? const Center(child: Text("Please select a category"))
-                  : StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: DatabaseServices()
-                          .getFoodItem(selectedCategory!)
-                          .map((snapshot) {
-                        return snapshot.docs
-                            .map((doc) => doc.data() as Map<String, dynamic>)
-                            .toList();
-                      }),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return const Center(child: Text("No items found"));
-                        }
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("products")
+                    .where("adminId",
+                        isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                    .where("type", isEqualTo: selectedCategory)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                        child: Text(
+                      "No items found",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ));
+                  }
 
-                        List<Map<String, dynamic>> foodItems = snapshot.data!;
-                        return ListView.builder(
-                          itemCount: foodItems.length,
-                          itemBuilder: (context, index) {
-                            final foodItem = foodItems[index];
-                            return ListTile(
-                              leading: foodItem['Image'] != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      child: Image.network(
-                                        foodItem['Image'],
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : const Icon(Icons.fastfood),
-                              title: Text(foodItem['Name'] ?? 'No Name'),
-                              subtitle:
-                                  Text(foodItem['Detail'] ?? 'No Description'),
-                            );
-                          },
-                        );
-                      },
-                    ),
+                  var foodItems = snapshot.data!.docs;
+                  return ListView.builder(
+                    itemCount: foodItems.length,
+                    itemBuilder: (context, index) {
+                      final foodItem = foodItems[index];
+                      return ListTile(
+                        leading: foodItem['image'] != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  foodItem['image'],
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : const Icon(Icons.fastfood),
+                        title: Text(foodItem['name']),
+                        subtitle: Text("Rs. " + foodItem['price'].toString()),
+                        trailing:
+                            Text("Quantity " + foodItem["quantity"].toString()),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),
