@@ -20,7 +20,11 @@ class _AddFoodState extends State<AddFood> {
     'Meat',
     'Beverages',
     'Backery',
-    'Oil'
+    'Oil',
+    'Vegetables',
+    'Dry Fruits',
+    'Snacks',
+    'Honey'
   ];
   String? value;
   TextEditingController nameController = TextEditingController();
