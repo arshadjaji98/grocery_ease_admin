@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_app_admin/admin_login.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:grocery_app_admin/home_admin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
