@@ -137,7 +137,7 @@ class _AdminSignUpState extends State<AdminSignUp> {
                                       children: [
                                         const SizedBox(height: 20.0),
                                         Text(
-                                          "Sign up",
+                                          "Create account for Admin",
                                           style:
                                               AppWidgets.headerTextFieldStyle(),
                                         ),
@@ -224,7 +224,7 @@ class _AdminSignUpState extends State<AdminSignUp> {
                                                           color: Colors.white))
                                                   : const Center(
                                                       child: Text(
-                                                        "SIGN IN",
+                                                        "CREATE",
                                                         style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 18.0,

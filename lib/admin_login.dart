@@ -166,18 +166,6 @@ class _AdminLogInState extends State<AdminLogIn> {
                                   ),
                                 ),
                                 const SizedBox(height: 20.0),
-                                Container(
-                                  alignment: Alignment.topRight,
-                                  child: const Text(
-                                    "Forgot Password?",
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 16,
-                                      decoration: TextDecoration.underline,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
                                 const SizedBox(height: 40.0),
                                 GestureDetector(
                                   onTap: () {
@@ -218,39 +206,6 @@ class _AdminLogInState extends State<AdminLogIn> {
                                             ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 40.0),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Don't have an account? ",
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const AdminSignUp()),
-                                        );
-                                      },
-                                      child: const Text(
-                                        "Sign up",
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 16,
-                                          decoration: TextDecoration.underline,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),

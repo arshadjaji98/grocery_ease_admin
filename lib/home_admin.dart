@@ -125,19 +125,6 @@ class _HomeAdminState extends State<HomeAdmin> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(CupertinoIcons.chat_bubble,
-                          color: Color(0XFF8a4af3)),
-                      title: const Text('Notification Screen',
-                          style: TextStyle(color: Color(0XFF8a4af3))),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const NotificationsScreens()));
-                      },
-                    ),
-                    ListTile(
                       leading: const Icon(CupertinoIcons.cube_box,
                           color: Color(0XFF8a4af3)),
                       title: const Text('My Products',
