@@ -41,15 +41,22 @@ class _AddFoodState extends State<AddFood> {
     setState(() {});
   }
 
+  bool isLoading = false;
+
   uploadItem() async {
     if (selectedImage != null &&
         nameController.text != "" &&
         priceController.text != "" &&
         detailController.text != "" &&
         quantityController.text != "") {
+      setState(() {
+        isLoading = true; // Start loading when the upload starts
+      });
+
       String addId = randomAlphaNumeric(10);
       Reference firebaseStorageRef =
           FirebaseStorage.instance.ref().child("blogImages").child(addId);
+
       final UploadTask task = firebaseStorageRef.putFile(selectedImage!);
 
       var downloadUrl = await (await task).ref.getDownloadURL();
@@ -68,11 +75,17 @@ class _AddFoodState extends State<AddFood> {
         "id": productId.id,
         "favourite": [],
       };
+
       await FirebaseFirestore.instance
           .collection("products")
           .doc(productId.id)
           .set(addItem)
           .then((value) {
+        // After upload completes, reset the loading state
+        setState(() {
+          isLoading = false; // Stop loading
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             backgroundColor: Colors.orangeAccent,
             content: Text(
@@ -80,6 +93,7 @@ class _AddFoodState extends State<AddFood> {
               style: TextStyle(fontSize: 18.0),
             )));
 
+        // Clear all fields after upload
         nameController.clear();
         priceController.clear();
         detailController.clear();
@@ -149,22 +163,29 @@ class _AddFoodState extends State<AddFood> {
                         ),
                       ),
                     )
-                  : Center(
-                      child: Material(
-                        elevation: 4.0,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          width: 150,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.black, width: 1.5),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.file(
-                              selectedImage!,
-                              fit: BoxFit.cover,
+                  : GestureDetector(
+                      onTap: () {
+                        // Allow the user to select a new image after tapping the displayed image
+                        getImage();
+                      },
+                      child: Center(
+                        child: Material(
+                          elevation: 4.0,
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            width: 150,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.black, width: 1.5),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Image.file(
+                                selectedImage!,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
@@ -305,9 +326,7 @@ class _AddFoodState extends State<AddFood> {
                 height: 30.0,
               ),
               GestureDetector(
-                onTap: () {
-                  uploadItem();
-                },
+                onTap: isLoading ? null : uploadItem,
                 child: Center(
                   child: Material(
                     elevation: 5.0,
@@ -316,16 +335,21 @@ class _AddFoodState extends State<AddFood> {
                       padding: const EdgeInsets.symmetric(vertical: 5.0),
                       width: 150,
                       decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: const Center(
-                        child: Text(
-                          "Add",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22.0,
-                              fontWeight: FontWeight.bold),
-                        ),
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                "Add",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                   ),

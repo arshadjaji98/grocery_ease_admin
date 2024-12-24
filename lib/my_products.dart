@@ -104,6 +104,12 @@ class _MyProductsState extends State<MyProducts> {
                                 _openEditDialog(context, foodItem);
                               },
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _deleteProduct(foodItem.id);
+                              },
+                            ),
                           ],
                         ),
                       );
@@ -172,6 +178,37 @@ class _MyProductsState extends State<MyProducts> {
               });
             },
             child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteProduct(String productId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Product"),
+        content: const Text("Are you sure you want to delete this product?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              FirebaseFirestore.instance
+                  .collection("products")
+                  .doc(productId)
+                  .delete()
+                  .then((value) {
+                Navigator.pop(context);
+                Utils.toastMessage("Product deleted successfully!");
+              }).catchError((error) {
+                Utils.toastMessage("Failed to delete product: $error");
+              });
+            },
+            child: const Text("Delete"),
           ),
         ],
       ),
