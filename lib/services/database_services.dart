@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class DatabaseServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Adds user details to the 'users' collection with a specified document ID.
   Future<void> addUserDetail(
       Map<String, dynamic> userInfoMap, String userId) async {
     await FirebaseFirestore.instance
@@ -13,7 +12,6 @@ class DatabaseServices {
         .set(userInfoMap);
   }
 
-  // Adds a food item to a specified collection (e.g., a category name).
   Future<void> addFoodItem(
       Map<String, dynamic> foodItemMap, String categoryName) async {
     await FirebaseFirestore.instance.collection(categoryName).add(foodItemMap);
@@ -23,7 +21,6 @@ class DatabaseServices {
     return FirebaseFirestore.instance.collection(categoryName).snapshots();
   }
 
-  // Adds a food item to a specific user's 'Cart' subcollection.
   Future<void> addFoodToCart(
       Map<String, dynamic> foodItemMap, String userId) async {
     await FirebaseFirestore.instance
@@ -33,7 +30,6 @@ class DatabaseServices {
         .add(foodItemMap);
   }
 
-  // Searches for users by the first letter of the username (case-insensitive).
   Future<QuerySnapshot> searchUserByUsername(String username) async {
     String searchKey = username.substring(0, 1).toUpperCase();
     return await FirebaseFirestore.instance

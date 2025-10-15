@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:grocery_app_admin/admin_login.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:grocery_app_admin/admin_login.dart';
+import 'package:grocery_app_admin/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -24,3 +25,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

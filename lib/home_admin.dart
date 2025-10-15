@@ -1,14 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, prefer_interpolation_to_compose_strings
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:grocery_app_admin/add_food.dart';
+import 'package:grocery_app_admin/add_job.dart';
 import 'package:grocery_app_admin/admin_login.dart';
-import 'package:grocery_app_admin/my_products.dart';
-import 'package:grocery_app_admin/notifications.dart';
+import 'package:grocery_app_admin/my_jobs.dart';
 import 'package:grocery_app_admin/services/services.dart';
 import 'package:grocery_app_admin/widgets/order_list.dart';
 import 'package:grocery_app_admin/widgets/text_style.dart';
@@ -64,55 +62,20 @@ class _HomeAdminState extends State<HomeAdmin> {
                       decoration: const BoxDecoration(
                         color: Colors.white,
                       ),
-                      child: Column(
-                        children: [
-                          Obx(() {
-                            return InkWell(
-                              onTap: () async {
-                                controller.pickImage();
-                                imgUrl =
-                                    await controller.uploadImageToFirebase();
-                              },
-                              child: CircleAvatar(
-                                radius: 50,
-                                child: ClipOval(
-                                  child: controller.image.value == null ||
-                                          controller.image.value!.path.isEmpty
-                                      ? (snapshot.data!.data()![
-                                                      "profile_image"] ==
-                                                  null ||
-                                              snapshot.data!
-                                                  .data()!["profile_image"]
-                                                  .isEmpty
-                                          ? Icon(Icons.person,
-                                              size:
-                                                  50) // Fallback when no image exists
-                                          : Image.network(
-                                              snapshot.data!
-                                                  .data()!["profile_image"],
-                                              fit: BoxFit.cover,
-                                            ))
-                                      : AspectRatio(
-                                          aspectRatio: 1.0,
-                                          child: Image.file(
-                                            controller.image.value!,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            );
-                          }),
-                          Text(
-                            snapshot.data!.data()!["name"],
-                            style: AppWidgets.semiBoldTextFieldStyle(),
-                          ),
-                        ],
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              snapshot.data!.data()!["email"],
+                              style: AppWidgets.boldTextFieldStyle(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     ListTile(
-                      leading: const Icon(CupertinoIcons.add_circled,
-                          color: Color(0XFF8a4af3)),
                       title: const Text(
                         'Add Product',
                         style: TextStyle(color: Color(0XFF8a4af3)),
@@ -121,7 +84,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const AddFood()));
+                                builder: (context) => const AddJob()));
                       },
                     ),
                     ListTile(
@@ -133,7 +96,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const MyProducts()));
+                                builder: (context) => const MyJobs()));
                       },
                     ),
                     ListTile(
@@ -147,7 +110,7 @@ class _HomeAdminState extends State<HomeAdmin> {
                 ),
               );
             } else {
-              return Center(child: SizedBox());
+              return const Center(child: SizedBox());
             }
           },
         ),
@@ -207,16 +170,16 @@ class _HomeAdminState extends State<HomeAdmin> {
                                   title: Text(
                                       snapshot.data!.docs[index]["items"][i]
                                           ["name"],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.black)),
+                                          fontSize: 18,
+                                          color: Colors.red)),
                                   subtitle: Row(
                                     children: [
                                       Text("Rs. " +
                                           snapshot.data!.docs[index]["items"][i]
                                               ["price"]),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Text("Qty. " +
@@ -391,13 +354,22 @@ class _HomeAdminState extends State<HomeAdmin> {
                       ),
                       phoneNumber: snapshot.data!.docs[index]["phoneNumber"],
                       address: snapshot.data!.docs[index]["currentAddress"],
+                      fullName: snapshot.data!.docs[index]
+                              .data()
+                              .containsKey("fullname")
+                          ? snapshot.data!.docs[index]["fullname"]
+                          : "N/A",
+                      city:
+                          snapshot.data!.docs[index].data().containsKey("city")
+                              ? snapshot.data!.docs[index]["city"]
+                              : "N/A",
                     ),
                   ),
                 );
               },
             );
           } else {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
         },
       ),

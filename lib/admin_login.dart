@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:grocery_app_admin/admin_register.dart';
-import 'package:grocery_app_admin/home_admin.dart';
+import 'package:grocery_app_admin/add_job.dart';
 import 'package:grocery_app_admin/responsive/web_responsive.dart';
 import 'package:grocery_app_admin/widgets/text_style.dart';
 import 'package:grocery_app_admin/widgets/utils.dart';
@@ -57,7 +56,7 @@ class _AdminLogInState extends State<AdminLogIn> {
           if (userRole == "admin") {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeAdmin()),
+              MaterialPageRoute(builder: (context) => const AddJob()),
             );
           } else {
             Utils.toastMessage("Unknown user role.");
@@ -113,7 +112,7 @@ class _AdminLogInState extends State<AdminLogIn> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 50),
+                  const SizedBox(height: 50),
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: WebResponsive(
@@ -189,7 +188,7 @@ class _AdminLogInState extends State<AdminLogIn> {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: _isLoading
-                                          ? Center(
+                                          ? const Center(
                                               child: SpinKitWave(
                                                   size: 20,
                                                   color: Colors.white))
